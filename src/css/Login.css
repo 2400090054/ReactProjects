@@ -1,0 +1,156 @@
+/* Reset and base styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family:monospace;
+}
+
+/* Main container */
+.login {
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, rgb(145, 47, 210), rgb(111, 33, 171), rgb(206, 169, 231));
+  display: flex;
+}
+
+/* Left panel */
+.login .leftpanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Right panel */
+.login .rightpanel {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Card container */
+.login .rightpanel .card {
+  width: 300px;
+  padding: 30px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Input fields */
+.login .rightpanel .card input {
+  width: 100%;
+  height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.login .rightpanel .card input:focus {
+  border: 1px solid #546;
+  outline: none;
+}
+
+/* Login button */
+.login .rightpanel .card button {
+  width: 100%;
+  height: 35px;
+  background: #667eea;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.login .rightpanel .card button:hover {
+  background: #3557ef;
+}
+
+/* Overlay for signup modal */
+.login .overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Signup modal */
+.login .overlay .signup {
+  width: 350px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  position: relative;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Close button */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: crimson;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Register button */
+.regButton {
+  margin-top: 10px;
+  padding: 10px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.regButton:hover {
+  background: #721b97;
+}
+
+/* Error message */
+.error {
+  color: rgb(235, 14, 14);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Form group wrapper */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Link styling */
+.link {
+  color: rgba(0, 0, 255, 0.89);
+  cursor: pointer;
+  text-decoration: underline;
+}
