@@ -1,127 +1,160 @@
 import React, { Component } from 'react';
 import './css/Login.css';
-
+import { BASEURL, callApi, setSession } from './lib';
 class Login extends Component {
-  constructor() {
-    super();
-    this.state = {
-      signup: false,
-      signupData: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: ""
-      },
-      errData: {}
-    };
-  }
+    constructor(){
+        super();
+        this.state = {signup:false, signupData:{
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            password: "",
+            confirmPassword: ""
+        }, errData: "", loginData:{
+            email: "",
+            password:""
+        }};
+        this.signupResponse = this.signupResponse.bind(this);
+        this.loginResponse = this.loginResponse.bind(this);
+    }
 
-  handleSignUpInput = (e) => {
-    this.setState({
-      signupData: {
-        ...this.state.signupData,
-        [e.target.name]: e.target.value
-      }
-    });
-  };
+    handleSignUpInput(e){
+        this.setState({signupData:{
+            ...this.state.signupData, [e.target.name]:e.target.value
+        }});
+    }
 
-  validateSignup = () => {
-    const { signupData } = this.state;
-    const err = {};
+    handleLoginInput(e){
+         this.setState({loginData:{
+            ...this.state.loginData, [e.target.name]:e.target.value
+        }});
+    }
 
-    if (!signupData.firstName.trim()) err.firstName = "First Name is required";
-    if (!signupData.lastName.trim()) err.lastName = "Last Name is required";
-    if (!signupData.email.trim()) err.email = "Email ID is required";
-    if (!signupData.phone.trim()) err.phone = "Phone Number is required";
-    if (signupData.password.length < 8) err.password = "Password must have 8 characters";
-    if (signupData.confirmPassword !== signupData.password)
-      err.confirmPassword = "Passwords do not match";
+    validateSignup(){
+        const {signupData} = this.state;
+        const err = {};
+        if(!signupData.firstName.trim()) err.firstName = "First Name is required";
+        if(!signupData.lastName.trim()) err.lastName = "Last Name is required";
+        if(!signupData.email.trim()) err.email = "Email ID is required";
+        if(!signupData.phone.trim()) err.phone = "Phone Number is required";
+        if(signupData.password.length < 8) err.password = "Password must have 8 chars";
+        if(signupData.confirmPassword !== signupData.password) err.confirmPassword = "Password does not match";
+        
+        this.setState({errData: err});
+        return Object.keys(err).length === 0;
+    }
 
-    this.setState({ errData: err });
-    return Object.keys(err).length === 0;
-  };
+    
 
-  registerUser = () => {
-    if (!this.validateSignup()) return;
-    alert("Registered Successfully!");
-    this.setState({
-      signup: false,
-      signupData: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: ""
-      },
-      errData: {}
-    });
-  };
+    registerUser(){
+        if(!this.validateSignup())
+            return;
 
-  handleLogin = () => {
-    alert("Login clicked!");
-  };
+        const {signupData} = this.state;
+        let data = JSON.stringify({
+            firstName: signupData.firstName,
+            lastName: signupData.lastName,
+            email: signupData.email,
+            phone: signupData.phone,
+            password: signupData.password
+        });
+        callApi("POST", BASEURL + 'signup', data, this.signupResponse);
+    }
+    signupResponse(res){
+        let rdata = JSON.parse(res);
+        alert(rdata);
 
-  render() {
-    const { signup, signupData, errData } = this.state;
+        this.setState({signupData:{
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            password: "",
+            confirmPassword: ""
+        },signup:null});
+    }
 
-    return (
-      <div className="login">
-        <div className="leftpanel">
-          <h1>Welcome Back!</h1>
-          <p>Access and manage your tasks efficiently</p>
-        </div>
+    login()
+    {
+        if(!this.validateLogin())
+            return;
 
-        <div className="rightpanel">
-          <div className="card">
-            <h2>Login</h2>
-            <input type="text" placeholder="Email" />
-            <input type="password" placeholder="Password" />
-            <button onClick={this.handleLogin}>Login</button>
-            <p>
-              Don't have an account?{" "}
-              <span className="link" onClick={() => this.setState({ signup: true })}>
-                Sign Up
-              </span>
-            </p>
-          </div>
-        </div>
+        const {loginData} = this.state
+        let data = JSON.stringify({
+            email: loginData.email,
+            password: loginData.password
+        });
+        callApi("POST", BASEURL + 'login', data, this.loginResponse);
+    }
 
-        {signup && (
-          <div className="overlay">
-            <div className="signup">
-              <button className="close" onClick={() => this.setState({ signup: false })}>
-                X
-              </button>
-              <h2>Create an Account</h2>
+    validateLogin(){
+        const {loginData} = this.state;
+        const err = {};
+        if(!loginData.email.trim()) err.email = "Email ID is required";
+        if(!loginData.password.trim()) err.password = "Password is required";
 
-              {["firstName", "lastName", "email", "phone", "password", "confirmPassword"].map((field) => (
-                <div key={field} className="form-group">
-                  <label>{field.replace(/([A-Z])/g, ' $1')} *</label>
-                  <input
-                    type={field.includes("password") ? "password" : "text"}
-                    name={field}
-                    placeholder={field.replace(/([A-Z])/g, ' $1')}
-                    value={signupData[field]}
-                    onChange={this.handleSignUpInput}
-                    autoComplete="off"
-                    style={!errData[field] ? {} : { border: "1px solid red" }}
-                  />
-                  {errData[field] && <small className="error">{errData[field]}</small>}
+        this.setState({errData: err});
+        return Object.keys(err).length === 0;
+    }
+    
+    loginResponse(res){
+        let rdata = JSON.parse(res).split("::");
+        if(rdata[0] === "300"){
+            const {loginData} = this.state
+            setSession("sid", loginData.email,1);
+            window.location.replace("/dashboard");
+        }
+        else
+            alert(rdata[1]);
+
+        this.setState({loginData: {
+            email: "",
+            password: ""
+        }});
+    }
+    render() {
+        const{signup, signupData, errData, loginData} = this.state;
+        return (
+            <div className='login'>
+                <div className='leftpanel'>
+                    <h1>Welcome Back!</h1>
+                    <p>Access and manage your task efficiently</p>
                 </div>
-              ))}
+                <div className='rightpanel'>
+                    <div className='card'>
+                        <h2>Login</h2>
+                        <input type='text' placeholder='Email' name='email' value={loginData.email} onChange={(e)=>this.handleLoginInput(e)} style={(!errData.email ? {} : {"border" : "1px solid red"})}/>
+                        <input type='password' placeholder='Password' name='password' value={loginData.password} onChange={(e)=>this.handleLoginInput(e)} style={(!errData.password ? {} : {"border" : "1px solid red"})}/>
+                        <button onClick={()=>this.login()}>Login</button>
+                        <p>Don't have an account? <span onClick={()=>this.setState({signup:true})}>Sign Up</span></p>
+                    </div>
+                </div>
 
-              <button className="regButton" onClick={this.registerUser}>
-                Register
-              </button>
+                {signup && 
+                    <div className='overlay'>
+                        <div className='signup'>
+                            <button className='close' onClick={()=>this.setState({signup:false})}>X</button>
+                            <h2>Create an account</h2>
+                            <label>First Name *</label>
+                            <input type='text' placeholder='First Name' name='firstName' value={signupData.firstName} onChange={(e)=>this.handleSignUpInput(e)} autoComplete='off' style={(!errData.firstName ? {} : {"border" : "1px solid red"})} />
+                            <label>Last Name *</label>
+                            <input type='text' placeholder='Last Name' name='lastName' value={signupData.lastName} onChange={(e)=>this.handleSignUpInput(e)} autoComplete='off' style={(!errData.lastName ? {} : {"border" : "1px solid red"})} />
+                            <label>Email ID *</label>
+                            <input type='text' placeholder='Email ID' name='email' value={signupData.email} onChange={(e)=>this.handleSignUpInput(e)} autoComplete='off' style={(!errData.email ? {} : {"border" : "1px solid red"})} />
+                            <label>Phone Number *</label>
+                            <input type='text' placeholder='Phone Number' name='phone' value={signupData.phone} onChange={(e)=>this.handleSignUpInput(e)} autoComplete='off' style={(!errData.phone ? {} : {"border" : "1px solid red"})} />
+                            <label>Password *</label>
+                            <input type='password' placeholder='Password' name='password' value={signupData.password} onChange={(e)=>this.handleSignUpInput(e)} style={(!errData.password ? {} : {"border" : "1px solid red"})} />
+                            <label>Confirm Password *</label>
+                            <input type='password' placeholder='Confirm Password' name='confirmPassword' value={signupData.confirmPassword} onChange={(e)=>this.handleSignUpInput(e)} style={(!errData.confirmPassword ? {} : {"border" : "1px solid red"})} />
+                            <button className='regButton' onClick={()=>this.registerUser()}>Register</button>
+                        </div>
+                    </div>
+                }
             </div>
-          </div>
-        )}
-      </div>
-    );
-  }
+        );
+    }
 }
 
-export default Login;
+export default Login
